@@ -1,4 +1,4 @@
-import { CurrencyType, IInvoice, InvoiceStatus } from "../Interfaces/IInvoice";
+import { IInvoice } from "../Interfaces/IInvoice";
 const { randomBytes } = require("crypto");
 
 export class Invoice implements IInvoice {
@@ -6,12 +6,12 @@ export class Invoice implements IInvoice {
         this.id = randomBytes(4).toString('hex');
         this.invoice_number = data?.invoice_number ?? ''
         this.total = data?.total ?? 0.00;
-        this.currency = data?.currency ?? CurrencyType.unknown;
+        this.currency = data?.currency ?? 'USD';
         this.invoice_date = data?.invoice_date ?? new Date();
         this.due_date = data?.due_date ?? new Date();
         this.vendor_name = data?.vendor_name ?? ''
         this.remittance_address = data?.remittance_address ?? ''
-        this.status = data?.status ?? InvoiceStatus.unknown;
+        this.status = data?.status ?? 'pending';
     }
 
     log(): void {
@@ -31,12 +31,12 @@ export class Invoice implements IInvoice {
     readonly id: string;
     invoice_number: string;
     total: number;
-    currency: CurrencyType;
+    currency: "USD" | "EUR" | "GBP" | "PEN";
     invoice_date: Date;
     due_date: Date;
     vendor_name: string;
     remittance_address: string;
-    status: InvoiceStatus
+    status: "pending" | "approved" | "rejected";
 
 
 }

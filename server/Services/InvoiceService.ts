@@ -1,8 +1,9 @@
 
-import { InvoiceStatus } from "../Interfaces/IInvoice";
+
 import { Service } from "typedi";
 import InvoiceRepoMemory from '../Repositories/InvoiceRepoMemory';
 import { Invoice } from "../Models/invoice";
+
 
 
 @Service()
@@ -12,6 +13,10 @@ class InvoiceService {
     SaveInvoice(data: Invoice): boolean {
 
         //ENHANCE :- Run any Validation or scrubbing that needs to happen before we persist the data. 
+
+        data.status = "pending";
+
+
         return this.invoiceRepo.Save(data);
 
     }
@@ -22,9 +27,11 @@ class InvoiceService {
         return invoice;
     };
 
-    GetInvoicesByStatus(status: InvoiceStatus): Invoice[] {
+    GetInvoicesByStatus(status: string): Invoice[] {
 
-        return this.GetInvoicesByStatus(status);
+
+
+        return this.invoiceRepo.GetByStatus(status);
 
     };
 

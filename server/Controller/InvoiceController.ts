@@ -1,7 +1,6 @@
 
 import { Request, Response } from "express";
 
-import { InvoiceStatus } from "../Interfaces/IInvoice";
 import { Service } from "typedi";
 import InvoiceService from '../Services/InvoiceService';
 import { Invoice } from "../Models/invoice";
@@ -14,20 +13,16 @@ class InvoiceController {
     SaveInvoice(_req: Request, res: Response) {
 
 
-        //TODO: Should be an InvoiceDto
+        //TODO: Should be an InvoiceDto or atleast we should verify the type of object somehow. 
         // if (typeof (_req.body) !== typeof (Invoice)) {
         //     res.status(400).send({
         //         message: `Invoice must be type of ${typeof (Invoice)}`
-
         //     });
         //     return;
         // }
 
 
-
-        const invoice: Invoice = _req.body as Invoice;
-
-        console.log(JSON.stringify(invoice));
+        const invoice = new Invoice(_req.body);
 
         //ENHANCE :- Run any Validation or scrubbing that needs to happen before we persist the data. 
         if (this.invoiceService.SaveInvoice(invoice)) {
@@ -70,11 +65,16 @@ class InvoiceController {
     GetInvoicesByStatus(_req: Request, res: Response) {
 
         //Cast the status from the route to our Enums
-        const status: InvoiceStatus = _req.params.status as unknown as InvoiceStatus;
+        const status = _req.params.status;
 
-        if (status !== InvoiceStatus.unknown) {
+        console.log(`status ${status}`);
+
+
+        if (status) {
 
             const invoices = this.invoiceService.GetInvoicesByStatus(status);
+
+            console.log(`Return Invoices: ${invoices}`);
 
             if (invoices.length > 0) {
                 // found some invoices
@@ -83,7 +83,7 @@ class InvoiceController {
             }
         }
 
-        res.status(400).send({
+        res.status(404).send({
             message: `Unable to find Invoices for status: ${status}`
         });
 
