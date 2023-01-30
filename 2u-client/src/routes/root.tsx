@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Layout, Menu, Space } from 'antd';
+import { Layout, Menu, Space, theme } from 'antd';
 
-import { UserOutlined, FireFilled } from '@ant-design/icons';
+import { CalculatorOutlined, FileAddOutlined } from '@ant-design/icons';
 import { Link, Route, Routes } from "react-router-dom";
 
 import CreateInvoice from "./create-invoice";
@@ -11,6 +11,9 @@ import Accounting from "./accounting";
 const { Header, Content, Footer, Sider } = Layout;
 
 export default function Root() {
+    const {
+        token: { colorBgContainer },
+    } = theme.useToken();
 
     return (
         <>
@@ -20,30 +23,31 @@ export default function Root() {
                     width: '100%',
                     height: '100%',
                 }}>
-                <Layout>
+                <Layout >
                     <Header></Header>
-                    <Layout>
-                        <Sider>
-                            <Menu defaultSelectedKeys={["1"]} mode="inline">
+                    <Layout style={{ padding: '0 50pt' }}>
+                        {/* <Sider>
+                            </Sider> */}
+                        <Sider style={{ background: colorBgContainer }} width={200}>
+                            <Menu defaultSelectedKeys={["1"]} mode="inline" theme='light'>
                                 <Menu.Item key="1">
                                     <Link to="/create-invoice">
-                                        <FireFilled />
+                                        <FileAddOutlined />
                                         <span>Create Invoice</span>
                                     </Link>
                                 </Menu.Item>
                                 <Menu.Item key="2">
                                     <Link to="/accounting">
-                                        <FireFilled />
+                                        <CalculatorOutlined />
                                         <span>Accounting</span>
                                     </Link>
                                 </Menu.Item>
                             </Menu>
-
                         </Sider>
 
 
 
-                        <Content style={{ margin: "0 16px", }}>
+                        <Content style={{ margin: "0 16px", background: colorBgContainer }}>
                             <div style={{ padding: 24, minHeight: 720 }}>
 
                                 <Routes>
