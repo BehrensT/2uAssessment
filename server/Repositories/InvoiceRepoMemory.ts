@@ -12,11 +12,18 @@ class InvoiceRepoMemory implements IInvoiceRepo {
         this.#invoices = [];
     }
 
-    Save(data: Invoice): boolean {
+    Upsert(data: Invoice): boolean {
 
-        //since this is just an inMemory store, we'll just push it on the array and return true. 
-        this.#invoices.push(data);
-        console.log(`Saving Invoice ${JSON.stringify(data)}`);
+
+        //check to see if the if is already there.. 
+        const index = this.#invoices.findIndex(i => i.id === data.id);
+
+        if (index === -1) {
+            this.#invoices.push(data);
+        }
+        else {
+            this.#invoices[index] = data;
+        }
         return true;
     };
     ///Return the invoice or an empty one

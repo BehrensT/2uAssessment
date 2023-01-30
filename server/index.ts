@@ -18,8 +18,11 @@ const main = async () => {
 
     app.get('/invoice/:id', (req, res) => _invoiceController.GetInvoiceById(req, res));
 
-    app.get('/invoice/:status/status', (req, res) => _invoiceController.GetInvoicesByStatus(req, res));
+    app.get('/invoice/status/:status', (req, res) => _invoiceController.GetInvoicesByStatus(req, res));
 
+    app.put('/invoice/:id', (req, res) => _invoiceController.UpdateInvoice(req, res));
+
+    app.patch('/invoice/:id', (req, res) => _invoiceController.UpdateInvoice(req, res));
 
     app.listen(4001, () => {
         console.log("Listening on 4001");

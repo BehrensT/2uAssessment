@@ -10,14 +10,10 @@ import { Invoice } from "../Models/invoice";
 class InvoiceService {
     constructor(private readonly invoiceRepo: InvoiceRepoMemory) { }
 
-    SaveInvoice(data: Invoice): boolean {
+    UpsertInvoice(data: Invoice): boolean {
 
         //ENHANCE :- Run any Validation or scrubbing that needs to happen before we persist the data. 
-
-        data.status = "pending";
-
-
-        return this.invoiceRepo.Save(data);
+        return this.invoiceRepo.Upsert(data);
 
     }
 
@@ -28,11 +24,7 @@ class InvoiceService {
     };
 
     GetInvoicesByStatus(status: string): Invoice[] {
-
-
-
         return this.invoiceRepo.GetByStatus(status);
-
     };
 
 

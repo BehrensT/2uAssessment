@@ -3,7 +3,7 @@ const { randomBytes } = require("crypto");
 
 export class Invoice implements IInvoice {
     constructor(data?: IInvoice) {
-        this.id = randomBytes(4).toString('hex');
+        this.id = data?.id ?? randomBytes(4).toString('hex');
         this.invoice_number = data?.invoice_number ?? ''
         this.total = data?.total ?? 0.00;
         this.currency = data?.currency ?? 'USD';

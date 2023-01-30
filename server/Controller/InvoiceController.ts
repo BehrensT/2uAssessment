@@ -10,7 +10,7 @@ import { Invoice } from "../Models/invoice";
 class InvoiceController {
     constructor(private readonly invoiceService: InvoiceService) { }
 
-    SaveInvoice(_req: Request, res: Response) {
+    SaveInvoice(_req: Request, _res: Response) {
 
 
         //TODO: Should be an InvoiceDto or atleast we should verify the type of object somehow. 
@@ -23,27 +23,27 @@ class InvoiceController {
 
 
         const invoice = new Invoice(_req.body);
-
+        invoice.status = "pending";
         //ENHANCE :- Run any Validation or scrubbing that needs to happen before we persist the data. 
-        if (this.invoiceService.SaveInvoice(invoice)) {
+        if (this.invoiceService.UpsertInvoice(invoice)) {
 
             console.log("setting 200 response");
 
-            res.status(200).send({
+            _res.status(200).send({
                 "message": "invoice submitted successfully"
             });
-            return res;
+            return;
         }
 
-        res.status(400).send({
+        _res.status(400).send({
             message: `Unable to save invoice`
         });
 
-        return res;
+        return;
 
     };
     ///Route: /invoice/:id
-    GetInvoiceById(_req: Request, res: Response) {
+    GetInvoiceById(_req: Request, _res: Response) {
 
         const invoiceId = _req.params.id || '';
 
@@ -52,17 +52,18 @@ class InvoiceController {
 
         //invoice was found
         if (invoice.id === invoiceId) {
-            res.status(200).send(invoice);
-            return res;
+            _res.status(200).send(invoice);
+            return;
         }
 
-        res.status(404).send({
+        _res.status(404).send({
             message: `Invoice with id ${invoiceId} not found.`
         });
-        return res;
+        return;
+
     }
     //Route: /invoice/:status/status
-    GetInvoicesByStatus(_req: Request, res: Response) {
+    GetInvoicesByStatus(_req: Request, _res: Response) {
 
         //Cast the status from the route to our Enums
         const status = _req.params.status;
@@ -78,17 +79,44 @@ class InvoiceController {
 
             if (invoices.length > 0) {
                 // found some invoices
-                res.status(200).send({ invoices });
-                return res;
+                _res.status(200).send({ invoices });
+                return;
+
             }
         }
 
-        res.status(404).send({
+        _res.status(404).send({
             message: `Unable to find Invoices for status: ${status}`
         });
+        return;
 
-        return res;
+
     };
+    ///Route PUT: '/invoice/:id'
+    UpdateInvoice(_req: Request, _res: Response) {
+        //get the status query string from the request. 
+
+        console.log('HERE')
+        const invoice = new Invoice(_req.body);
+
+        console.log('UPSERT');
+
+        if (this.invoiceService.UpsertInvoice(invoice)) {
+
+            console.log("setting 200 response");
+
+            _res.status(200).send({
+                "message": "invoice submitted successfully"
+            });
+            return;
+        }
+
+        _res.status(400).send({
+            message: `Unable to save invoice`
+        });
+
+        return;
+    }
 };
 
 export default InvoiceController;
