@@ -42,6 +42,12 @@ class InvoiceController {
         return;
 
     };
+    ///Route: /invoice
+    GetAllInvoices(_req: Request, _res: Response) {
+        const invoices: Invoice[] = this.invoiceService.GetAllInvoices();
+
+        _res.status(200).send({ invoices });
+    };
     ///Route: /invoice/:id
     GetInvoiceById(_req: Request, _res: Response) {
 
@@ -96,11 +102,7 @@ class InvoiceController {
     UpdateInvoice(_req: Request, _res: Response) {
         //get the status query string from the request. 
 
-        console.log('HERE')
         const invoice = new Invoice(_req.body);
-
-        console.log('UPSERT');
-
         if (this.invoiceService.UpsertInvoice(invoice)) {
 
             console.log("setting 200 response");
@@ -116,6 +118,24 @@ class InvoiceController {
         });
 
         return;
+    };
+    //Route: invoice/:id?status
+    PatchInvoice(_req: Request, _res: Response) {
+        const status = _req.query.status as "pending" | "rejected" | "approved"
+
+        //get the record. 
+        const invoice = this.invoiceService.GetInvoice(_req.params.id);
+        invoice.status = status;
+
+        if (this.invoiceService.UpsertInvoice(invoice)) {
+            _res.status(200).send({});
+        }
+        else {
+            _res.status(400).send({
+                message: `unable to update invoice id: ${invoice.id}`
+            })
+        }
+
     }
 };
 

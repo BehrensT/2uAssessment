@@ -26,6 +26,9 @@ class InvoiceRepoMemory implements IInvoiceRepo {
         }
         return true;
     };
+    GetAll(): Invoice[] {
+        return this.#invoices;
+    }
     ///Return the invoice or an empty one
     Get(id: string): Invoice {
         return this.#invoices.find(i => i.id === id) ?? new Invoice();

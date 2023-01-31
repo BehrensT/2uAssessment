@@ -17,6 +17,10 @@ class InvoiceService {
 
     }
 
+    GetAllInvoices(): Invoice[] {
+        return this.invoiceRepo.GetAll();
+    }
+
     GetInvoice(id: string): Invoice {
 
         const invoice = this.invoiceRepo.Get(id);

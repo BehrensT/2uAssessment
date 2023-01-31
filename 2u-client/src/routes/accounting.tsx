@@ -96,10 +96,13 @@ const Accounting = () => {
         }
     ];
     const setInvoiceStatus = async (invoice: InvoiceDto, status: "pending" | "rejected" | "approved") => {
-        invoice.status = status;
-        const res = await axios.put(`http://localhost:4001/invoice/${invoice.id}`, { invoice })
+
+        const res = await axios.patch(`http://localhost:4001/invoice/${invoice.id}?status=${status}`)
         if (res.status === 200) {
             //update it in the data. 
+
+            //ENHANCE: This is where an event listener would be beneficial. 
+            fetchInvoices();
 
 
         }
@@ -107,19 +110,24 @@ const Accounting = () => {
             //throw an error to the UI notification service
             alert(JSON.stringify(res.data))
         }
-    };
 
-    const [data, setPosts] = useState<InvoiceDto[]>([]);
-    const fetchInvoices = async (status: "pending" | "rejected" | "approved") => {
-        const res = await axios.get(`http://localhost:4001/invoice/status/${status}`);
-        if (res.status === 200) {
-            setPosts(res.data.invoices);
+        //Quick and Dirty.. 
+        const index = data.findIndex(i => i.id === invoice.id);
+        if (index !== -1) {
+            data[index].status = status;
         }
 
     };
 
+    const [data, setPosts] = useState<InvoiceDto[]>([]);
+    const fetchInvoices = async () => {
+        const res = await axios.get(`http://localhost:4001/invoice`);
+        if (res.status === 200) {
+            setPosts(res.data.invoices);
+        }
+    };
     useEffect(() => {
-        fetchInvoices("pending");
+        fetchInvoices();
 
     }, []);
 
