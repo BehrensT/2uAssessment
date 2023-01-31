@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Space, Table, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import axios from 'axios';
 
-interface DataType {
+//TODO: pull from a core package for Dto
+interface InvoiceDto {
     id: string,
     invoice_number: string;
     total: number;
@@ -14,113 +16,118 @@ interface DataType {
     remittance_address: string;
     status: "pending" | "approved" | "rejected";
 }
-const columns: ColumnsType<DataType> = [
-    {
-        title: 'Invoice Number',
-        dataIndex: 'invoice_number',
-        key: 'invoice_number',
 
-    },
-    {
-        title: 'Total',
-        dataIndex: 'total',
-        key: 'total',
-    },
-    {
-        title: 'Currency',
-        dataIndex: 'currency',
-        key: 'currency',
-    },
+const Accounting = () => {
 
-    {
-        title: 'Invoice Date',
-        dataIndex: 'invoice_date',
-        key: 'invoice_date',
-        render: (invoice_date: Date) => invoice_date.toLocaleDateString()
-    },
-    {
-        title: 'Due Date',
-        dataIndex: 'due_date',
-        key: 'due_date',
-        render: (due_data: Date) => due_data.toLocaleDateString()
+    const columns: ColumnsType<InvoiceDto> = [
+        {
+            title: 'Invoice Number',
+            dataIndex: 'invoice_number',
+            key: 'invoice_number',
 
-    },
-    {
-        title: 'Vendor Name',
-        dataIndex: 'vendor_name',
-        key: 'vendor_name',
-    },
-    {
-        title: 'Remittance Address',
-        dataIndex: 'remittance_address',
-        key: 'remittance_address',
-    },
-    {
-        title: 'Action',
-        key: 'status',
-        dataIndex: 'status',
-        render: (status) => (
-            <Space size="middle">
-                {
-                    //if Pending -> Show approve/Reject
-                    //If != Pending -> Show status. 
-                    (status === "pending") ? (
-                        <>
-                            <Button>Approve</Button>
-                            <Button>Reject</Button>
-                        </>
-                    ) : (<div>{(status)}</div>)
-                }
+        },
+        {
+            title: 'Total',
+            dataIndex: 'total',
+            key: 'total',
+        },
+        {
+            title: 'Currency',
+            dataIndex: 'currency',
+            key: 'currency',
+        },
+
+        {
+            title: 'Invoice Date',
+            dataIndex: 'invoice_date',
+            key: 'invoice_date',
+            render: (invoice_date: string) => new Date(invoice_date).toLocaleDateString()
+        },
+        {
+            title: 'Due Date',
+            dataIndex: 'due_date',
+            key: 'due_date',
+            render: (due_data: string) => new Date(due_data).toLocaleDateString()
+
+        },
+        {
+            title: 'Vendor Name',
+            dataIndex: 'vendor_name',
+            key: 'vendor_name',
+        },
+        {
+            title: 'Remittance Address',
+            dataIndex: 'remittance_address',
+            key: 'remittance_address',
+        },
+        {
+            title: 'Action',
+            key: 'status',
+            filters: [{
+                text: 'approved',
+                value: 'approved'
+            }, {
+                text: 'pending',
+                value: 'pending',
 
 
-            </Space>
-        ),
-    }
+            }, {
+                text: 'rejected',
+                value: 'rejected'
+            }],
+            dataIndex: 'status',
+            defaultFilteredValue: ['pending'],
+            onFilter: (value, record) => { return record.status === value },
+            filterMultiple: false,
+            render: (status, record) => (
+                <>
+                    {
+                        //if Pending -> Show approve/Reject
+                        //If != Pending -> Show status. 
+                        (status === "pending") ? (
+                            <>
+                                <Button onClick={() => setInvoiceStatus(record, "approved")}>Approve</Button>
+                                <Button onClick={() => setInvoiceStatus(record, "rejected")}>Reject</Button>
+                            </>
+                        ) : (<div>{(status)}</div>)
+                    }
+                </>
+            ),
+        }
+    ];
+    const setInvoiceStatus = async (invoice: InvoiceDto, status: "pending" | "rejected" | "approved") => {
+        invoice.status = status;
+        const res = await axios.put(`http://localhost:4001/invoice/${invoice.id}`, { invoice })
+        if (res.status === 200) {
+            //update it in the data. 
 
-];
-const data: DataType[] = [
-    {
-        id: "f8f1cbe7",
-        invoice_number: "12345",
-        total: 200,
-        currency: "USD",
-        invoice_date: new Date("2023-01-30T21:38:02.813Z"),
-        due_date: new Date("2024-02-28T21:38:07.219Z"),
-        vendor_name: "Tester",
-        remittance_address: "123 Main St, Charlotte NC 28227",
-        status: "pending"
-    },
-    {
-        id: "be9b3462",
-        invoice_number: "12345",
-        total: 200,
-        currency: "USD",
-        invoice_date: new Date("2023-01-30T21:38:02.813Z"),
-        due_date: new Date("2023-06-28T21:38:07.219Z"),
-        vendor_name: "Yeah",
-        remittance_address: "123 Main St, Charlotte NC 28227",
-        status: "pending"
-    },
-    {
-        id: "be9b3462",
-        invoice_number: "12345",
-        total: 200,
-        currency: "USD",
-        invoice_date: new Date("2023-01-30T21:38:02.813Z"),
-        due_date: new Date("2023-06-28T21:38:07.219Z"),
-        vendor_name: "Yeah",
-        remittance_address: "123 Main St, Charlotte NC 28227",
-        status: "rejected"
-    }
-]
-function Accounting() {
+
+        }
+        else {
+            //throw an error to the UI notification service
+            alert(JSON.stringify(res.data))
+        }
+    };
+
+    const [data, setPosts] = useState<InvoiceDto[]>([]);
+    const fetchInvoices = async (status: "pending" | "rejected" | "approved") => {
+        const res = await axios.get(`http://localhost:4001/invoice/status/${status}`);
+        if (res.status === 200) {
+            setPosts(res.data.invoices);
+        }
+
+    };
+
+    useEffect(() => {
+        fetchInvoices("pending");
+
+    }, []);
+
 
     return (
         <>
             <h2>Accounting</h2>
             <Table columns={columns} dataSource={data} />
-
-
         </>
     );
 
